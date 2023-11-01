@@ -1,0 +1,52 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+df=pd.read_csv('/content/wine.csv')
+
+x=df.iloc[:,0:13]
+y=df.iloc[:,13]
+
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.3,random_state=0)
+
+from sklearn.preprocessing import StandardScaler
+sc=StandardScaler()
+x_train=sc.fit_transform(x_train)
+x_test=sc.transform(x_test)
+
+from sklearn.decomposition import PCA
+pca=PCA(n_components=2)
+x_train=pca.fit_transform(x_train)
+x_test=pca.transform(x_test)
+explained_variance=pca.explained_variance_ratio_
+
+from sklearn.linear_model import LogisticRegression
+
+classifier=LogisticRegression(random_state=0)
+classifier.fit(x_train,y_train)
+
+y_pred=classifier.predict(x_test)
+
+from sklearn.metrics import confusion_matrix
+cm=confusion_matrix(y_pred,y_test)
+
+df_pca_train=pd.DataFrame(data=x_train,columns=['PCA1','PCA2'])
+df_pca_test=pd.DataFrame(data=x_test,columns=['PCA1','PCA2'])
+
+
+plt.figure(figsize=(12,6))
+plt.subplot(1,2,1)
+plt.scatter(df_pca_train['PCA1'],df_pca_train['PCA2'],c=y_train,cmap='viridis')
+plt.xlabel('PCA1')
+plt.ylabel('PCA2')
+plt.title("Training data")
+
+plt.subplot(1,2,2)
+plt.scatter(df_pca_test['PCA1'],df_pca_test['PCA2'],c=y_test,cmap='viridis')
+plt.xlabel('PCA1')
+plt.ylabel('PCA2')
+plt.title("Testing data")
+
+plt.tight_layout()
+plt.show()
