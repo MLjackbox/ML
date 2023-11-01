@@ -1,0 +1,24 @@
+from sklearn.cluster import DBSCAN
+from sklearn.datasets import make_blobs
+import matplotlib.pyplot as plt
+import numpy as np
+
+X, y = make_blobs(n_samples=100, centers=3, cluster_std=0.6, random_state=0)
+
+dbscan = DBSCAN(eps=0.5, min_samples=5).fit(X)
+labels = dbscan.labels_
+n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+
+core_samples_mask = np.zeros_like(labels, dtype=bool)
+core_samples_mask[dbscan.core_sample_indices_] = True
+
+colors = ['b', 'g', 'r', 'c', 'm', 'y']
+
+for k in set(labels):
+    xy = X[labels == k]
+    size = 14 if k == -1 else 6
+    marker_edge_color = 'k' if k != -1 else 'none'
+    plt.plot(xy[:, 0], xy[:, 1], 'o', markersize=size, markerfacecolor=colors[k % len(colors)], markeredgecolor=marker_edge_color)
+
+plt.title(f'Estimated number of clusters: {n_clusters}')
+plt.show()
