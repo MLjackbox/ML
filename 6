@@ -1,0 +1,49 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix
+from sklearn.preprocessing import LabelEncoder
+
+data = pd.read_csv("/content/apples_and_oranges.csv")
+
+training_set, test_set = train_test_split(data, test_size=0.2, random_state = 1)
+X_train = training_set.iloc[:,0:2].values
+Y_train = training_set.iloc[:,2].values
+X_test = test_set.iloc[:,0:2].values
+Y_test = test_set.iloc[:,2].values
+
+classifier = SVC(kernel ="rbf", random_state = 1)
+classifier.fit(X_train, Y_train)
+Y_pred = classifier.predict(X_test)
+test_set["Predictions"] = Y_pred
+
+cm = confusion_matrix(Y_test, Y_pred)
+accuracy = float(cm.diagonal().sum())/len(Y_test)
+print("The accuracy of SVM for the given dataset is ",accuracy)
+
+le = LabelEncoder()
+Y_train = le.fit_transform(Y_train)
+
+classifier = SVC(kernel='rbf', random_state = 1)
+classifier.fit(X_train, Y_train)
+
+plt.figure(figsize = (7,7))
+x_set, y_set = X_train, Y_train
+x1, x2 = np.meshgrid(np.arange(start = x_set[:, 0].min() - 1, stop = x_set[:,0].max() + 1, step = 0.01),
+                     np.arange(start = x_set[:, 1].min() - 1, stop = x_set[:,1].max() + 1, step = 0.01))
+plt.contourf(x1,x2,classifier.predict(np.array([x1.ravel(),x2.ravel()]).T).reshape(x1.shape),
+             alpha =0.75,cmap = ListedColormap(("black","white")))
+plt.xlim(x1.min(), x1.max())
+plt.ylim(x2.min(), x2.max())
+for i, j in enumerate(np.unique(y_set)):
+    plt.scatter(x_set[y_set == j, 0], x_set[y_set== j, 1], c = ListedColormap(("red", "orange"))(i), label = j)
+
+
+plt.title("Apples Vs Oranges")
+plt.xlabel("Weight In Grams")
+plt.ylabel("Size in cm")
+plt.legend()
+plt.show()
