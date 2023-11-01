@@ -1,0 +1,23 @@
+import pandas as pd
+import os
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import export_graphviz
+from sklearn import datasets
+from graphviz import Source
+iris = datasets.load_iris()
+x=iris.data
+y=iris.target
+x_train,x_test,y_train,y_test= train_test_split(x,y,test_size=0.3,random_state=2)
+clf=DecisionTreeClassifier(max_depth=2)
+clf=clf.fit(x_train,y_train)
+y_pred=clf.predict(x_test)
+print("Acccuracy: ", metrics.accuracy_score(y_test,y_pred))
+export_graphviz(
+    clf,
+    out_file=os.path.join(".","sample_data","iris_tree.dot"),
+    feature_names = iris.feature_names,
+    class_names=iris.target_names,
+)
+Source.from_file("/content/sample_data/iris_tree.dot")
