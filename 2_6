@@ -1,71 +1,51 @@
-from numpy import loadtxt
-from xgboost import XGBClassifier
-from sklearn.model_selection import   train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.cluster import DBSCAN
-import matplotlib.pyplot as plt
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-
-mydata=loadtxt('/content/dataset.csv',delimiter=",")
-
-Independent_features=mydata[:,0:8]
-Dependent_features=mydata[:,8]
-
 import pandas as pd
-pd.DataFrame(mydata.shape)
+from numpy import loadtxt
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
+from sklearn.svm import SVC
+from xgboost import XGBClassifier
 
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 
-seed=1
-x_train,x_test,y_train,y_test=train_test_split(Independent_features,Dependent_features,test_size=0.20,random_state=seed)
+data=loadtxt('/content/dataset.csv',delimiter=',')
+X=data[:,0:8]
+y=data[:,8]
 
-#running various models
-models = []
-models.append(('LinearRegression', LinearRegression()))
-# models.append(('LogisticRegression', LogisticRegression()))
-models.append(('DecisionTree', DecisionTreeClassifier()))
-# models.append(('XGB', XGBClassifier(eta=0.01, gamma=10)))
-# models.append(('SVM', SVC()))
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.3,random_state=0)
 
+models=[]
 
- #eta = 0.01, gamma- 10
+models.append(('LinearRegression',LinearRegression()))
+# models.append('LogisticRegression',LogisticRegression())
+# models.append('XGBoost',XGBClassifier(eta=0.01,gamma=10))
+models.append(('DecisionTree',DecisionTreeClassifier()))
+# models.append('SVM',SVC())
 
 import time
-
-#evaluate each model in turn
-results=[]
-names=[]
-scoring='accuracy'
-
 for name,model in models:
-  start_time=time.time()
-  model.fit(x_train,y_train)
-  y_pred=model.predict(x_test)
-  predictions=[round(value) for value in y_pred]
+    start_time=time.time()
+    model.fit(X_train,y_train)
+    y_pred=model.predict(X_test)
+    predictions=[round(value) for value in y_pred]
 
-#accuracy predictions
-accuracy = accuracy_score(y_test,predictions)
-print("Accuracy: %.2f%%" % (accuracy * 100.0),name)
-print("--- %s seconds ---" % (time.time() - start_time))
 
-# decision tree
-df = pd.read_csv('/content/dataset.csv')  # Replace 'your_file.csv' with the actual file name
-x_train = df.drop('0', axis=1)  # Assuming 'target_column' is the column you want to predict
+accuracy=accuracy_score(predictions,y_test)
+print("Accuracy is %.2f"%accuracy,name)
+print("-----%s-----"%(time.time()-start_time))
+
+import pandas as pd
+df = pd.read_csv('/content/dataset.csv')
+x_train = df.drop('0', axis=1)
 y_train = df['0']
 
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.tree import export_text
-
-# Your provided code
 
 for name, model in models:
     start_time = time.time()
     model.fit(x_train, y_train)
-    y_pred = model.predict(x_train)  # You may want to change this to x_test later
+    y_pred = model.predict(x_train)
     predictions = [round(value) for value in y_pred]
 
     if name == 'DecisionTree':
@@ -73,6 +53,8 @@ for name, model in models:
         print(tree_rules)
 
 
-plt.scatter(df['60'], df['44'])
+import matplotlib.pyplot as plt
+
+plt.scatter(df['60'],df['44'])
 plt.xlabel('Glucose')
 plt.ylabel('Diabetes')
