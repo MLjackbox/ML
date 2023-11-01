@@ -1,0 +1,32 @@
+from numpy import loadtxt
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.svm import SVC
+import pandas as pd
+import time
+mydata = loadtxt("/content/pima-indians-diabetes.csv",delimiter=",")
+Independant_feature=mydata[:,0:8]
+Dependant_feature=mydata[:,8]
+x_train,x_test,y_train,y_test=train_test_split(Independant_feature,Dependant_feature,test_size=0.2,random_state=1)
+models=[]
+models.append(("LogisticRegression",LogisticRegression()))
+models.append(("SVM",SVC()))
+models.append(("KNN",KNeighborsClassifier()))
+models.append(("XGB",XGBClassifier(eta=0.01,gamma=10)))
+result=[]
+name=[]
+scoring="accuracy"
+
+for name,model in models:
+  start_time=time.time()
+  model.fit(x_train,y_train)
+
+  y_pred=model.predict(x_test)
+  prediction=[round(values) for values in y_pred]
+
+accuracy=accuracy_score(y_test,prediction)
+print("%.2f%%"%(accuracy*100.0),name)
+print("%s seconds"%(time.time()-start_time))
