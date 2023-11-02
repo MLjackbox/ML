@@ -1,32 +1,54 @@
-from numpy import loadtxt
-from xgboost import XGBClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.svm import SVC
 import pandas as pd
+
+mydata=pd.read_csv('/content/diabetes.csv')
+Independent_features=mydata.iloc[:,0:8]
+Dependent_features=mydata.iloc[:,8]
+# mydata.head()
+
+# pd.DataFrame(mydata).shape
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(Independent_features,Dependent_features,test_size=0.20,random_state=1)
+
+# from xgboost import XGBClassifier
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.svm import SVC
+
+# models=[]
+# models.append(('LogisticRegression',LogisticRegression(max_iter=1000)))
+# models.append(('KNN',KNeighborsClassifier()))
+# models.append(('SVM',SVC()))
+# models.append(('XGB',XGBClassifier(eta=0.1,gamma=10)))
+
+# import time
+# from sklearn.metrics import accuracy_score
+# results=[]
+# names=[]
+# scoring='accuracy'
+
+# for name,model in models:
+#     start_time=time.time()
+#     model.fit(X_train,y_train)
+
+#     y_pred=model.predict(X_test)
+#     predictions=[round(value) for value in y_pred]
+#     accuracy =accuracy_score(y_test,predictions)
+#     print("Accuracy: %.2f%%" %(accuracy*100.0),name)
+#     print("--- %s seconds ---" % (time.time()-start_time))
+
+from xgboost import XGBClassifier
 import time
-mydata = loadtxt("/content/pima-indians-diabetes.csv",delimiter=",")
-Independant_feature=mydata[:,0:8]
-Dependant_feature=mydata[:,8]
-x_train,x_test,y_train,y_test=train_test_split(Independant_feature,Dependant_feature,test_size=0.2,random_state=1)
-models=[]
-models.append(("LogisticRegression",LogisticRegression()))
-models.append(("SVM",SVC()))
-models.append(("KNN",KNeighborsClassifier()))
-models.append(("XGB",XGBClassifier(eta=0.01,gamma=10)))
-result=[]
-name=[]
-scoring="accuracy"
+from sklearn.metrics import accuracy_score
 
-for name,model in models:
-  start_time=time.time()
-  model.fit(x_train,y_train)
+# Create an XGBoost model
+model = XGBClassifier(eta=0.1, gamma=10)
 
-  y_pred=model.predict(x_test)
-  prediction=[round(values) for values in y_pred]
+start_time = time.time()
+model.fit(X_train, y_train)
 
-accuracy=accuracy_score(y_test,prediction)
-print("%.2f%%"%(accuracy*100.0),name)
-print("%s seconds"%(time.time()-start_time))
+y_pred = model.predict(X_test)
+predictions = [round(value) for value in y_pred]
+accuracy = accuracy_score(y_test, predictions)
+print("Accuracy: %.2f%%" % (accuracy * 100.0))
+print("--- %s seconds ---" % (time.time() - start_time))
